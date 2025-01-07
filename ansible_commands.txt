@@ -1,4 +1,4 @@
   580  ansible all -m yum -a "name=httpd state=absent" --ask-become-pass -b
   581  ansible-playbook advanced_webserver_playbook.yml --ask-become-pass
-  582  ansible all -m yum -a "name=httpd state=absent" --ask-become-pass -b
+  700  ansible all -m setup --ask-become-pass
 

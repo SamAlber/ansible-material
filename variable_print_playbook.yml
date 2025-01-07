@@ -1,0 +1,40 @@
+---
+
+- name: Playbook for Variables Lesson
+  hosts: all
+  become: yes
+
+  vars: 
+    message1: Privet
+    message2: World 
+    secret  : 123
+
+  tasks: 
+
+  - name: Print Secret Variable 
+    debug: 
+      var: secret 
+  
+  - debug: 
+      msg: "Secret Number: {{ secret }}"
+
+  - debug: 
+      msg: "The owner of the server: {{ansible_user}}"
+
+  - set_fact: full_message="{{ message1 }} {{message2 }} from {{ ansible_user }}" 
+    # set_fact for setting a combined variable
+    
+  - debug: 
+      var: full_message
+
+  - debug: 
+      var: ansible_distribution # When using var we dont need {{ }}, taken from ansible all -m setup which lists all the info about the servers and those are all enclosed in variables, when the playbook is played it runs this command without us seeing it
+
+  # How to save the output of the command? Here it is: 
+  
+  - shell: uptime # if were doing it like that it will be performed on the server but not showed to us when running ansible-playbook
+    register: results # register command saves the output 
+
+  - debug: 
+      var: results.stdout # to print only the stdout in the JSON of results of uptime
+
