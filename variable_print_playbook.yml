@@ -18,6 +18,8 @@
   - debug: 
       msg: "Secret Number: {{ secret }}"
 
+      # msg for message and var for outputing variable only
+
   - debug: 
       msg: "The owner of the server: {{ansible_user}}"
 

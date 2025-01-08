@@ -13,6 +13,11 @@
         name: httpd
         state: latest
 
+  tasks: 
+    - name: Check and Print Linux Version
+      debug: 
+        var: ansible_os_family 
+
     - name: Ensure Apache is Enabled and Running
       service:
         name: httpd

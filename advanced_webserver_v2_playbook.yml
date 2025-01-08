@@ -1,0 +1,71 @@
+---
+- name: Ensure Apache is Installed and Running
+  hosts: all
+  become: yes
+
+  vars:
+    source_file: ./myWebsite/index.html
+    dest_file: /var/www/html/index.html
+
+  tasks:
+
+    - name: Check and Print Linux Version
+      debug:
+        var: ansible_os_family
+
+    - block: # ===== Block for RedHat ===== #
+      
+        - name: Install Apache Web Server
+          yum:
+            name: httpd
+            state: latest  
+
+        - name: Deploy Website
+          copy:
+            src: "{{ source_file }}"
+            dest: "{{ dest_file }}"
+            mode: '0644'
+          notify: Reload Apache RedHat
+
+        - name: Ensure Apache is Enabled and Running for RedHat
+          service:
+            name: httpd
+            state: started
+            enabled: yes
+
+      when: ansible_os_family == "RedHat"
+  
+    - block: # ==== Block for Debian ==== #
+
+        - name: Install Apache Web Server for Debian
+          apt:
+            name: apache2
+            state: latest
+
+        - name: Deploy Website
+          copy:
+            src: "{{ source_file }}"
+            dest: "{{ dest_file }}"
+            mode: '0644'
+          notify: Reload Apache Debian
+
+        - name: Ensure Apache is Enabled and Running for Debian
+          service:
+            name: apache2
+            state: started
+            enabled: yes
+
+      when: ansible_os_family == "Debian"
+
+  # - name: Copy Homepage File to Webserver
+      # copy: src{{ source_file }} dest={{ destin_file }} mode=0555
+      # notify: Restart Apache
+
+  handlers:
+    - name: Reload Apache Debian
+      service:
+        name: apache2
+        state: reloaded # reloaded and not restarted like astahov wanted to not interrupt website
+
+    - name: Reload Apache RedHat
+      service: name=httpd state=reloaded
