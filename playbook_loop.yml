@@ -1,0 +1,44 @@
+---
+
+- name: Loops Playbook
+  hosts: appserver1
+  become: yes
+
+  tasks:
+
+    - name: Say Hello to All
+      debug:
+        msg: "Hello {{ item }}" # Item is a saved word, can't use it
+      with_items: # loop can be used too instead of with_items
+        - "Sam"
+        - "Vasya"
+        - "Petya"
+      # FIX: Corrected the indentation of 'with_items'. It should align with the 'debug' module. 
+      # Previously, it was at the wrong level, which would cause a YAML syntax error.
+
+    - name: Clear myfile.txt before starting
+      shell: echo -n > z_file.txt
+
+    - name: Loop Until Example
+      shell: echo -n Z >> z_file.txt && cat z_file.txt  # -n = don't do new line
+      # Can do shell with | to put cat z_file.txt without &&
+      register: output # To save results in output
+      delay: 1 # Seconds
+      retries: 10 # If we won't specify retries it'll go over 3 times
+      until: output.stdout.find("ZZZZ") !=  -1  # Do until 4 ZZZZ found
+      # FIX: Adjusted the indentation of 'delay', 'retries', and 'until' under 'shell'.
+      # FIX: Corrected the logic in 'until'. The method find() returns -1 if "ZZZZ" is not found, 
+      # not a boolean. Comparing to -1 ensures the loop runs correctly.
+
+    - name: Print Final Output
+      debug:
+        var: output.stdout
+      # FIX: Ensured correct indentation for the 'debug' task for clarity and YAML compliance.
+
+
+    - name: Install Packages Example with Loop 
+      yum: name={{ item }} state=installed
+      with_items:
+        - nginx
+        - python
+
