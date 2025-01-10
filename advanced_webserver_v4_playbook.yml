@@ -44,21 +44,26 @@
       when: ansible_os_family == "Debian"
 
   # - name: Copy Homepage File to Webserver
-      # copy: src{{ source_file }} dest={{ destin_file }} mode=0555
+      # copy: src{{ source_file }} dest={{ dest_file }} mode=0555
       # notify: Restart Apache
+      
+
+    - name: Generate INDEX.HTML file
+      template: src={{ source_folder }}/index.j2 dest={{ dest_folder }}/index.html mode=0555
+      notify:
+        - Reload Apache RedHat
+        - Reload Apache Debian
+        # copy and template are very similar modules but template will check if there are variables in the file but copy just copies the files as is.
+        
   
-    - name: Copy files to Webserver
+    - name: Copy all files other than index.html to the Webserver
       copy:
-        # src: "{{ source_folder }}/{{ item }}" old before with_fileglob
-        src: "{{ item }}" 
+        src: "{{ source_folder }}/{{ item }}" 
         dest: "{{ dest_folder }}"
-        mode: '0644'
-      with_fileglob: "{{ source_folder }}/*.*" # Alternative way without using loop and should change src as well to {{ item }} only. That good to copy all the directory.   
+        mode: '0644'   
 
-#     loop: 
-#       - "index.html"
-#       - "bahamas.png"
-
+      loop: 
+        - "bahamas.jpg"
       notify:
         - Reload Apache RedHat       
         - Reload Apache Debian
@@ -68,9 +73,11 @@
     - name: Reload Apache Debian
       service:
         name: apache2
-        state: reloaded # reloaded and not restarted like astahov wanted to not interrupt website
+        state: reloaded # reloaded and not restarted like astahov wanted to not interrupt website, resterted only if we changed configs
       when: ansible_os_family == "Debian"
 
     - name: Reload Apache RedHat
-      service: name=httpd state=reloaded
+      service: 
+        name: httpd 
+        state: reloaded
       when: ansible_os_family == "RedHat"
