@@ -1,0 +1,59 @@
+---
+- name: Delegate Playbook
+  hosts: all
+  become: yes
+
+  vars: 
+    mytext: "Privet from Sam" 
+
+  tasks: 
+  - name: Ping Test
+    ping: 
+
+  - name: Unregister Server from Load Balancer 
+    shell: echo This server {{ inventory_hostname }} was deregistered from our Load Balancer, node name is {{ ansible_nodename }} >> /home/log.txt 
+    delegate_to: 127.0.0.1 
+  # This task will run from every machine but will be delegated only to the Ansible master and therefore the log.txt will be generated only there 
+  # VERY INTERESTING! WE WILL SEE APPSERVER1 IN THE LOG.TXT SO IT WILL RUN THERE AND FORWARD FROM APPSERVER1 TO THE MASTER
+  
+  - name: Update my Database
+    shell: echo "UPDATING Database..."
+    run_once: true 
+
+  - name: Create File1
+    copy: 
+      dest: /home/file1.txt
+      content: | 
+        This is File1
+        On English Hello World
+        On Russian {{ mytext }}
+    delegate_to: appserver1 # All the linux machines will run the command and forward it at the end to appserver1 (all the machines will forward the command to appserver1) 
+
+  - name: Create file2
+    copy: 
+      dest: /home/file2.txt 
+      content: |
+        This is File2
+        On English Hello World
+        On Russian {{ mytext }} 
+
+  - name: Reboot my Servers # This is what we should do to reboot the computer and not get an error ahahahah
+    shell: sleep 3 && reboot now 
+
+    #  adds a delay of 3 seconds before executing the reboot now command. This might be done to ensure that any preceding processes have time to settle.
+    
+    async: 1 # Maximum timeout 
+
+    # The async parameter specifies the maximum amount of time (in seconds) Ansible will wait for the command to complete in the background. Here, async  sets the task to start the reboot but does not wait for it to finish. The task will run for up to 1 second before being marked complete on Ansible’s side.
+
+    poll: 0 
+
+  # The poll parameter controls how often (in seconds) Ansible checks the status of the task. Setting poll 0 means Ansible will not wait or poll for the task to complete. It sends the command and moves on without checking its status.
+
+  - name: Wait Till my Server will Come Up Online
+    wait_for: 
+      host: "{{ inventory_hostname }}" 
+      state: started 
+      delay: 5 
+      timeout: 40
+    delegate_to: 127.0.0.1 # If we will run this when our other servers are dead we will get an error so we need to delefate this to the ansible-master
