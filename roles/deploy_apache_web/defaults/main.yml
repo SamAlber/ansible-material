@@ -1,0 +1,6 @@
+---
+# defaults file for deploy_apache_web
+
+#  source_folder: ./myWebsite2 not needed because we don't need to do a loop, the files are already placed into the files folder
+
+dest_folder: /var/www/html

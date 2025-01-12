@@ -1,0 +1,14 @@
+---
+# handlers file for deploy_apache_web
+
+ - name: Reload Apache Debian
+   service:
+     name: apache2
+     state: reloaded # reloaded and not restarted like astahov wanted to not interrupt website, resterted only if we changed configs
+   when: ansible_os_family == "Debian"
+
+ - name: Reload Apache RedHat
+   service:
+     name: httpd
+     state: reloaded
+   when: ansible_os_family == "RedHat"

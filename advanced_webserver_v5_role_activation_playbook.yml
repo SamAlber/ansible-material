@@ -1,0 +1,9 @@
+---
+- name: Install Apache and Upload my Homepage
+  # hosts: all Standard way to call everyone
+  # hosts: STAGING_SERVERS (We need to go to hosts and write the group explicitly
+  hosts: "{{ MYHOSTS }}" # Use --extra-var "MYHOSTS=STAGING_SERVERS" or "MYHOSTS=STAGING_SERVERS owner=Sam" to set the variable, variables passed with --extra-var have the highest priority and replace all other variables 
+  become: yes
+
+  roles:
+    - { role: deploy_apache_web, when: ansible_system == 'Linux' } 

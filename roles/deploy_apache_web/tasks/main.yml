@@ -1,0 +1,62 @@
+---
+# tasks file for deploy_apache_web
+
+    - name: Check and Print Linux Version
+      debug:
+       var: ansible_os_family
+
+    - block: # ===== Block for RedHat ===== #
+
+        - name: Install Apache Web Server
+          yum:
+            name: httpd
+            state: latest
+
+        - name: Ensure Apache is Enabled and Running for RedHat
+          service:
+            name: httpd
+            state: started
+            enabled: yes
+
+      when: ansible_os_family == "RedHat"
+
+    - block: # ==== Block for Debian ==== #
+
+        - name: Install Apache Web Server for Debian
+          apt:
+            name: apache2
+            state: latest
+
+        - name: Ensure Apache is Enabled and Running for Debian
+          service:
+            name: apache2
+            state: started
+            enabled: yes
+
+      when: ansible_os_family == "Debian"
+
+  # - name: Copy Homepage File to Webserver
+      # copy: src{{ source_file }} dest={{ dest_file }} mode=0555
+      # notify: Restart Apache
+
+
+    - name: Generate INDEX.HTML file
+      template: src=index.j2 dest={{ dest_folder }}/index.html mode=0555
+        # No need to specify {{ source_folder }} because the index.j2 is already in the template file
+      notify:
+        - Reload Apache RedHat
+        - Reload Apache Debian
+        # copy and template are very similar modules but template will check if there are variables in the file but copy just copies the files as is.
+
+
+    - name: Copy all files other than index.html to the Webserver
+      copy:
+        src: "{{ item }}"
+        dest: "{{ dest_folder }}"
+        mode: '0644'
+
+      loop:
+        - "bahamas.jpg"
+      notify:
+        - Reload Apache RedHat
+        - Reload Apache Debian
