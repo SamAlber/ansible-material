@@ -1,0 +1,28 @@
+---
+# Our goal is to separate this playbook and leave only the most important stuff here
+- name: Import/Include Demo
+  hosts: all
+  become: yes
+
+  vars:
+   mytext: "Privet from Sam"
+  
+  tasks: 
+  
+  - name: Ping Test
+    ping:
+
+  - name: Create Folders
+    include_tasks: create_folders.yml
+
+#   - name: Create Files
+#    include_tasks: create_files.yml
+
+  # Can be written like that: 
+  - include: create_files.yml mytext="Hello from Rishon" 
+
+    # When using import, while ansible parses the playbook before executing it, it immediately takes what's in the create_folders.yml and imports it into the main playbook while changing the variables if we defined them in the main file {{ mytext }}
+    #
+    # When using include_tasks, while ansible parses the playbook it doesn't do anything with the include. Only after getting to the task while executing the playbook it will take the contents of create_files.yml and import it into the main playbook
+    # We will want to use include_tasks if we want our variables to be used lastly (if we want to always change them), import doesn't allow that 
+
