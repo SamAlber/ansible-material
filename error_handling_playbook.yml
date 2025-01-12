@@ -1,0 +1,34 @@
+---
+- name: Error Handling Demo Playbook
+  hosts: all
+  any_errors_fatal: true # Any error quits the playbook execution
+  become: yes
+
+  tasks:
+  - name: Task Number1
+    yum: name=treee state=latest
+    ignore_errors: yes
+  
+  - name: Task Number2
+    shell: echo HelloWorld!
+    register: results1
+    failed_when: results1.rc != 0 
+  # failed_when: "'World' in results1.stdout" # The tasks fails only when 'World'presents in the output. So even the debug task won't work
+
+  - debug:
+      var: results1
+  
+  - name: Task Number3
+    shell: cat /home/log.txt
+    register: results2
+    ignore_errors: yes 
+
+  - debug:
+      var: results2
+
+  - name: Task Number4
+    shell: echo Privet Mir! 
+    register: results3
+    
+  - debug: 
+      var: results3
