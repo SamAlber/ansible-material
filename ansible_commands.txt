@@ -1,4 +1,38 @@
-  580  ansible all -m yum -a "name=httpd state=absent" --ask-become-pass -b
-  581  ansible-playbook advanced_webserver_playbook.yml --ask-become-pass
-  700  ansible all -m setup --ask-become-pass
+  # General Commands #
+ 
+  ansible all -m yum -a "name=httpd state=absent" --ask-become-pass -b
+  ansible all -m setup --ask-biecome-pass
+  ansible all 0m copy -aa "src=privet.txt dest=/home mode=777"
+  ansible -i hosts all -m ping
 
+  ansible-playbook playbook.yml --extra-var / --extra-vars / -r "MYHOSTS=STAGING" # after making the hosts in the role actication playbook: hosts: "{{ MYHOSTS }}" 
+
+  ansible-playbook advanced_webserver_playbook.yml --ask-become-pass
+
+  mkdir roles --> ansible-galaxy init deploy_apache_web  
+
+  tree
+
+  # Ansbile Vault Commands # 
+
+  ansible-vault create "secretfile.txt" 
+  
+  ansible-vault view "secretfile.txt" 
+
+  ansible-vault edit "secretfile.txt" 
+
+  ansible-vault rekey "secretfile.txt" 
+
+  
+
+  ansible-vault encrypt myfile.yml - encrypt existing file
+  
+  ansible-vault decrypt myfile.yml - decrypt existing file
+
+  ansible-playbook myplaybook.yml --ask-vault-pass
+
+  ansible-playbook myplaybook.yml --vault-password-file PasswordForVault.txt - Put the password in a file and ecrypt it and then use it instead typing the vault pass like before
+
+  ansible-vault encrypt_string - Let's us encrypt a variable to use in a playbook like we did (next command combines 2 together) 
+
+  echo -n "secretword" | ansible-vault encrypt_string - 2 in 1 command
